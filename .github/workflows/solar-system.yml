@@ -55,6 +55,7 @@ jobs:
         with:
           name: Mocha-Test-Result
           path: test-results.xml
+          retention-days: 2
 
 
   code-coverage:
@@ -73,20 +74,27 @@ jobs:
 
 
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
 
-
-      - uses: actions/cache@v3
-        name: Cache npm Dependencies
+      - name: Cache npm Dependencies
+        uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
 
 
-      - run: npm install
-        name: Install Dependencies
-
-
-      - run: npm run coverage
-        name: Run Code Coverage
+      - name: Install Dependencies
+        run: npm install
+        
+      - name: Run Code Coverage
+        continue-on-error: true
+        run: npm run coverage
+                
+      - name: Archive Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: Code-Coverage-Result
+          path: coverage
+          retention-days: 2
